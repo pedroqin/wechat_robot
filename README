@@ -7,16 +7,16 @@ My Wechat_Robot base on the it chat
 functions：            
 '''******************
 *help                               --get this message
-*setadmin                      --XXXX
-speakXXXX                    --speak XXXX by sounder
-糗百+页数(1/2/3...)      --爬取糗百纯文本内容
-天气+地点                      --查询天气
+*setadmin                           --XXXX
+speakXXXX                           --speak XXXX by sounder
+糗百+页数(1/2/3...)                  --爬取糗百纯文本内容
+天气+地点                            --查询天气
 温度                                 --查询宿舍温度
 [音乐]
 播放                                 --音乐播放+[歌曲序号]
 停止                                 --音乐停止/音乐暂停
-更新列表                         --音乐更新
-读取列表                         --音乐列表+[列表页数]
+更新列表                             --音乐更新
+读取列表                             --音乐列表+[列表页数]
 [get fil/img/vid/msg]
 /Pedro/python/file/    <----file saved in this path when you send /img/vid/fil/voi to it
 *get+fil/img/vid/msg+:/!+filepath    <---- if you get the file in /Pedro/python/file/XXX pls use '!',or, use ':' with whole path
