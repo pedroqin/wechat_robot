@@ -91,14 +91,3 @@ def findOneNum(date,personName,group):
 
 
 
-#for list1 in listGroup("Jul-29-17","Mongodb论坛技术讨论二群"): 
-#    print list1["name"],list1["number"]
-
-#for i in range(0,5):
-#    print listGroup("Jul-29-17","Mongodb论坛技术讨论二群")[i]
-
-#print posts.find_one({"name":"pedro"})
-#posts.save(new_post)
-#print "over"
-#print signIn("pedro","myGroupe")
-#print str(daily("123"))
