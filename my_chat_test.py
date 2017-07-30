@@ -12,12 +12,36 @@ import os
 import info
 import music
 import temperature
+from sign_in import *
+import datetime
+
 from NetEaseMusicApi import interact_select_song
 reload (sys)
 sys.setdefaultencoding('utf8')
+'''
+*************personal Chat:************
+命令---功能
+*help                               --get this message
+*setadmin                      --XXXX
+speakXXXX                    --speak XXXX by sounder
+糗百+页数(1/2/3...)      --爬取糗百纯文本内容
+天气+地点                      --查询天气
+温度                                 --查询宿舍温度
+[音乐]功能----命令
+播放                                 --音乐播放+[歌曲序号]
+停止                                 --音乐停止/音乐暂停
+更新列表                         --音乐更新
+读取列表                         --音乐列表+[列表页数]
+[get fil/img/vid/msg]
+/Pedro/python/file/    <----file saved in this path when you send /img/vid/fil/voi to it
+*get+fil/img/vid/msg+:/!+filepath    <---- if you get the file in /Pedro/python/file/XXX pls use '!',or, use ':' with whole path
+*************group Chat:************
+for amin：关闭群聊 打开群聊
+签到
+昨日统计
+今日统计/统计
 
-
-
+'''
 KEY = '6d1f45613b434325b1b823f19fca5a91'
 my_ID=''
 #print info.admin_name
@@ -216,13 +240,62 @@ def get_file(file_type,path_type,file_path,fileDir='/Pedro/python/file/',toUserN
 ########Group Chat########
 @itchat.msg_register(TEXT,isGroupChat=True)
 def group_reply(msg):
+    dailyLogMsg(msg["User"]["NickName"])#accumulate group 's message sum
+    perNum(msg["ActualNickName"],msg["User"]["NickName"])#accumulate group everyone message sum
+    cf = ConfigParser.ConfigParser()
+    cf.read(info.admin_file)
+    closeGroup=cf.get('wechatGroup','number')
+    if msg['User']["NickName"] ==closeGroup:
+        if msg['ActualNickName']!=info.admin_name:
+            return 
+        else:
+            if msg['Content']=="打开群聊":
+                cf.set('wechatGroup','number',"close")
+                cf.write(open(info.admin_file,"w"))
+                itchat.send(u'@%s\u2005 Reboot robot Successfully !' % msg['ActualNickName'],msg['FromUserName'])
+            else:
+                return
+    if msg['Content']=="关闭群聊":
+        if msg['ActualNickName']==info.admin_name:
+            wechatGroup=msg['FromUserName']
+            cf.set('wechatGroup','number',msg['User']["NickName"])
+            cf.write(open(info.admin_file,"w"))
+            itchat.send(u'@%s\u2005 Shutdown robot Successfully !' % msg['ActualNickName'],msg['FromUserName'])
+    if msg['Content']=="签到" or msg['Content']=="qiandao" or msg['Content']=="簽到":
+        result=signIn(msg['ActualNickName'],msg['User']["NickName"])
+        if result == "False" :
+            itchat.send(u'@%s\u2005 您今天已经签过到啦，不用重复签哦~' % (msg['ActualNickName']),msg['FromUserName'])
+        else:
+		#if result[0].isdigit():
+            itchat.send(u'签到成功！\n @%s\u2005 ,您是今天第%s个签到的，已累计签到%s天' % (msg['ActualNickName'],result[1],result[0]),msg['FromUserName'])
+#        else :
+ #           itchat.send(u'@%s\u2005 啊咧~签到失败，请稍后再试' % (msg['ActualNickName']),msg['FromUserName'])
     if msg['isAt']:
 #        itchat.send(u'@%s\u2005I received: %s' % (msg['ActualNickName'],msg['Content']),msg['FromUserName'])
 #        defaultReply = 'I received: ' + msg['Text']
 
 #####my robot name :  @robot_P len=8
-        reply = get_response(msg['Content'][8:])+ str(msg['Content'])
-        itchat.send(u'@%s\u2005 %s' % (msg['ActualNickName'],reply),msg['FromUserName'])
+        if msg['Content'][9:]=="昨日统计":
+            day=datetime.date.today()-datetime.timedelta(days=1)#yesterday 's date
+            countStr="%s日 发言排行: \n名次\t   昵称\t   发言数\n" % day.strftime('%Y-%b-%d')
+            i=1
+            for member in listGroup(day.strftime('%b-%d-%y'),msg['User']['NickName']):
+                countStr=countStr +'第'+str(i)+'名'+':'+ member["name"] + '\t' + str(member["number"]) +'\n'
+                i+=1
+            itchat.send(u'%s' % countStr,msg['FromUserName'])
+
+        elif msg['Content'][9:]=="今日统计" or msg['Content'][9:]=="统计":
+            day=datetime.date.today()
+            countStr="%s日 发言排行: \n名次\t   昵称\t   发言数\n" % day.strftime('%Y-%b-%d')
+            i=1
+            for member in listGroup(day.strftime('%b-%d-%y'),msg['User']['NickName']):
+                countStr=countStr +'第'+str(i)+'名'+':'+ member["name"] + '\t' + str(member["number"]) +'\n'
+                i+=1
+            itchat.send(u'%s' % countStr,msg['FromUserName'])
+            
+        else:
+            reply = get_response(msg['Content'][9:])
+            itchat.send(u'@%s\u2005 %s' % (msg['ActualNickName'],reply),msg['FromUserName'])
 
 @itchat.msg_register(FRIENDS)
 def add_friend(msg):
